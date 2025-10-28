@@ -6,13 +6,15 @@ import it.stefanobusceti.tasktracker.core.domain.Task
 import it.stefanobusceti.tasktracker.core.domain.TaskRepository
 import it.stefanobusceti.tasktracker.core.domain.usecase.AddTaskUseCase
 import it.stefanobusceti.tasktracker.core.domain.usecase.ToggleRunningUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 class MainScreenViewModel(
@@ -21,51 +23,63 @@ class MainScreenViewModel(
     private val addTaskUseCase: AddTaskUseCase
 ) : ViewModel() {
 
-    private var _state = MutableStateFlow(MainScreenState())
-    val state = _state.asStateFlow()
+    private val _searchText = MutableStateFlow("")
 
-    private var allTasks: List<Task> = emptyList()
+    private val _tasks = taskRepository.getAllTasks()
 
-    init {
-        //initial data load with flow
-        viewModelScope.launch {
-            taskRepository.getAllTasks().map { tasks ->
-                allTasks = tasks
-                MainScreenState(
-                    taskList = tasks.sortedBy { task -> task.id }.reversed(),
-                    startStopButtonText = if (hasRunningTasks(tasks)) "Pause all" else "Resume all"
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-                initialValue = MainScreenState()
-            ).collect { _state.value = it }
+    private val counterFlow = flow {
+        while (true) {
+            emit(Unit)
+            delay(1.seconds)
         }
     }
+
+    @OptIn(ExperimentalTime::class)
+    val state = combine(
+        _tasks,
+        _searchText,
+        counterFlow
+    ) { tasks, text, _ ->
+        val filteredTasks = if (text.isBlank()) {
+            tasks
+        } else {
+            tasks.filter { it.name.contains(text, ignoreCase = true) }
+        }.sortedBy { it.id }.reversed()
+
+        val updatedTasks = filteredTasks.map { task ->
+            if (task.running) {
+                task.copy(
+                    totalTime = task.totalTime + (Clock.System.now()
+                        .toEpochMilliseconds() - task.startTime)
+                )
+            } else {
+                task
+            }
+        }
+
+        MainScreenState(
+            taskList = updatedTasks,
+            taskInputText = text
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = MainScreenState()
+    )
 
     fun onAction(action: MainScreenAction) {
         when (action) {
             is MainScreenAction.OnTextChange -> {
-                _state.update { currentState ->
-                    val filteredList = if (action.text.isBlank()) {
-                        allTasks
-                    } else {
-                        allTasks.filter { task ->
-                            task.name.contains(action.text, ignoreCase = true)
-                        }
-                    }
-
-                    currentState.copy(
-                        taskInputText = action.text,
-                        taskList = filteredList
-                    )
-                }
+                _searchText.value = action.text
             }
 
             is MainScreenAction.OnTextInput -> {
                 viewModelScope.launch {
                     addTaskUseCase.invoke(action.text).onFailure {
+                        // TODO: Handle error, e.g., show a snackbar
                         println(it.message)
+                    }.onSuccess {
+                        _searchText.value = ""
                     }
                 }
             }
@@ -83,47 +97,18 @@ class MainScreenViewModel(
             is MainScreenAction.DeleteAllTask -> {
                 viewModelScope.launch {
                     taskRepository.deleteAll().onFailure {
+                        // TODO: Handle error, e.g., show a snackbar
                     }
                 }
             }
         }
     }
 
-    private fun hasRunningTasks(tasks: List<Task>): Boolean {
-        return (tasks.isEmpty() || tasks.any { task -> task.running })
-    }
-
     private fun deleteTask(task: Task) {
         viewModelScope.launch {
             taskRepository.deleteTask(task).onFailure {
+                // TODO: Handle error, e.g., show a snackbar
             }
-        }
-    }
-
-    @OptIn(ExperimentalTime::class)
-    private fun updateRunningTaskTime() {
-        _state.update { currentState ->
-
-            val updatedAllTasks = allTasks.map { task ->
-                if (task.running) {
-                    val elapsedSessionTime =
-                        Clock.System.now().toEpochMilliseconds() - task.startTime
-
-                    task.copy(
-                        totalTime = elapsedSessionTime
-                    )
-                } else {
-                    task
-                }
-            }
-
-            allTasks = updatedAllTasks
-
-            currentState.copy(
-                taskList = updatedAllTasks.filter { task ->
-                    task.name.contains(state.value.taskInputText, ignoreCase = true)
-                }
-            )
         }
     }
 }

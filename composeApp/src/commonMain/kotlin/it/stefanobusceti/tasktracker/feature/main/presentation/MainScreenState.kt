@@ -6,6 +6,5 @@ import it.stefanobusceti.tasktracker.core.domain.Task
 data class MainScreenState(
     val taskInputText: String = "",
     val taskList: List<Task> = emptyList(),
-    val snackBarHostState: SnackbarHostState = SnackbarHostState(),
-    val startStopButtonText: String = "Pause all"
+    val snackBarHostState: SnackbarHostState = SnackbarHostState()
 )
