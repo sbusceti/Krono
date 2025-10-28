@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		01536B7AF836C660ECF083A7 /* TaskTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		01536B7AF836C660ECF083A7 /* Krono.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Krono.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -59,7 +59,7 @@
 		DCE2340EE7EEC942D9AA282A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				01536B7AF836C660ECF083A7 /* TaskTracker.app */,
+				01536B7AF836C660ECF083A7 /* Krono.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -87,7 +87,7 @@
 			packageProductDependencies = (
 			);
 			productName = iosApp;
-			productReference = 01536B7AF836C660ECF083A7 /* TaskTracker.app */;
+			productReference = 01536B7AF836C660ECF083A7 /* Krono.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

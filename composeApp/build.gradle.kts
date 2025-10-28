@@ -64,11 +64,11 @@ kotlin {
 }
 
 android {
-    namespace = "it.stefanobusceti.tasktracker"
+    namespace = "it.stefanobusceti.krono"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "it.stefanobusceti.tasktracker"
+        applicationId = "it.stefanobusceti.krono"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -104,11 +104,11 @@ room {
 
 compose.desktop {
     application {
-        mainClass = "it.stefanobusceti.tasktracker.MainKt"
+        mainClass = "it.stefanobusceti.krono.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "it.stefanobusceti.tasktracker"
+            packageName = "it.stefanobusceti.krono"
             packageVersion = "1.0.0"
         }
     }

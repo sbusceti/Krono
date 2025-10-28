@@ -1,4 +1,4 @@
-rootProject.name = "TaskTracker"
+rootProject.name = "Krono"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
