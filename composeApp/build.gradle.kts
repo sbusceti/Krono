@@ -110,6 +110,8 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "it.stefanobusceti.krono"
             packageVersion = "1.0.0"
+
+            modules("jdk.accessibility")
         }
     }
 }
