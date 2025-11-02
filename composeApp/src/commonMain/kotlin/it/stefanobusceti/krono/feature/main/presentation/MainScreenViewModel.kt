@@ -7,9 +7,12 @@ import it.stefanobusceti.krono.core.domain.TaskRepository
 import it.stefanobusceti.krono.core.domain.usecase.AddTaskUseCase
 import it.stefanobusceti.krono.core.domain.usecase.ToggleRunningUseCase
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,6 +28,8 @@ class MainScreenViewModel(
 
     private val _searchText = MutableStateFlow("")
 
+    private var _saveEvent = MutableSharedFlow<UiEvent>()
+    val saveEvent = _saveEvent.asSharedFlow()
     private val _tasks = taskRepository.getAllTasks()
 
     private val counterFlow = flow {
@@ -99,6 +104,17 @@ class MainScreenViewModel(
                     taskRepository.deleteAll().onFailure {
                         // TODO: Handle error, e.g., show a snackbar
                     }
+                }
+            }
+
+            MainScreenAction.CloseApp -> {
+                viewModelScope.launch {
+                    _saveEvent.emit(UiEvent.SaveInProgress(true))
+                    _tasks.first().filter { it.running }.forEach {
+                        toggleRunningUseCase.invoke(it.id)
+                    }
+                    delay(1.seconds)
+                    _saveEvent.emit(UiEvent.SaveInProgress(false))
                 }
             }
         }

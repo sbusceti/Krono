@@ -8,4 +8,7 @@ sealed interface MainScreenAction {
     data class DeleteTask(val task: Task) : MainScreenAction
     data object DeleteAllTask : MainScreenAction
     data class ToggleRunning(val id: Int) : MainScreenAction
+
+    data object CloseApp : MainScreenAction
+
 }
