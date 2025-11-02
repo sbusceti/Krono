@@ -112,6 +112,10 @@ compose.desktop {
             packageVersion = "1.0.0"
 
             modules("jdk.accessibility")
+
+            macOS {
+                iconFile.set(project.file("src/macosMain/resources/Krono.icns"))
+            }
         }
     }
 }
