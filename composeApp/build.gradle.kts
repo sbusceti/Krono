@@ -108,7 +108,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "it.stefanobusceti.krono"
+            packageName = "Krono"
             packageVersion = "1.0.0"
 
             modules("jdk.accessibility")
