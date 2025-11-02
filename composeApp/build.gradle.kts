@@ -104,6 +104,12 @@ room {
 
 compose.desktop {
     application {
+        buildTypes.release.proguard {
+            obfuscate.set(false)
+            isEnabled.set(true)
+            configurationFiles.from(project.file("proguard-rules.pro"))
+        }
+
         mainClass = "it.stefanobusceti.krono.MainKt"
 
         nativeDistributions {
