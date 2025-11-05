@@ -7,30 +7,47 @@ import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 actual object DatabaseConstructor : RoomDatabaseConstructor<TaskDatabase> {
-    // 1. Specifica la directory e il nome del file del DB
-    private const val DB_NAME = "tasks.db"
 
     actual override fun initialize(): TaskDatabase {
-
-        // 2. Determina la directory dove salvare il file del DB.
-        // Un buon posto è la directory home dell'utente.
-        val dbDir = File(System.getProperty("user.home"), "TaskDatabase")
-
-        // Crea la directory se non esiste
-        if (!dbDir.exists()) {
-            dbDir.mkdirs()
-        }
-
-        val dbFile = File(dbDir, DB_NAME)
-
-        // 3. Usa Room.databaseBuilder con il percorso assoluto
         return Room.databaseBuilder<TaskDatabase>(
-            name = dbFile.absolutePath,
+            name = getDatabaseFile().absolutePath,
         )
-            // 4. Aggiungi il driver SQLite necessario per KMP su JVM
             .setDriver(BundledSQLiteDriver())
-            // 5. Configurazione per Coroutine (opzionale, ma consigliata)
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()
     }
+}
+
+private fun getDatabaseFile(): File {
+    val os = System.getProperty("os.name").lowercase()
+    val userHome = System.getProperty("user.home")
+    val appName = "Krono"
+
+    val baseDir = when {
+        os.contains("mac") || os.contains("darwin") -> {
+            // macOS
+            File(userHome, "Library/Application Support/$appName")
+        }
+
+        os.contains("win") -> {
+            // Windows
+            val appData = System.getenv("LOCALAPPDATA")
+                ?: File(userHome, "AppData/Local").absolutePath
+            File(appData, appName)
+        }
+
+        else -> {
+            // Linux
+            val xdgDataHome = System.getenv("XDG_DATA_HOME")
+                ?: File(userHome, ".local/share").absolutePath
+            File(xdgDataHome, appName)
+        }
+    }
+
+    
+    if (!baseDir.exists()) {
+        baseDir.mkdirs()
+    }
+
+    return File(baseDir, "tasks.db")
 }
