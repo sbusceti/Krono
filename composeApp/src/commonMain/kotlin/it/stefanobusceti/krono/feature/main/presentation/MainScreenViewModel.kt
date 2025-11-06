@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -26,11 +27,11 @@ class MainScreenViewModel(
     private val addTaskUseCase: AddTaskUseCase
 ) : ViewModel() {
 
-    private val _searchText = MutableStateFlow("")
-
     private var _saveEvent = MutableSharedFlow<UiEvent>()
     val saveEvent = _saveEvent.asSharedFlow()
     private val _tasks = taskRepository.getAllTasks()
+
+    private var _state = MutableStateFlow(MainScreenState())
 
     private val counterFlow = flow {
         while (true) {
@@ -41,14 +42,14 @@ class MainScreenViewModel(
 
     @OptIn(ExperimentalTime::class)
     val state = combine(
+        _state,
         _tasks,
-        _searchText,
         counterFlow
-    ) { tasks, text, _ ->
-        val filteredTasks = if (text.isBlank()) {
+    ) { currentState, tasks, _ ->
+        val filteredTasks = if (currentState.taskInputText.isBlank()) {
             tasks
         } else {
-            tasks.filter { it.name.contains(text, ignoreCase = true) }
+            tasks.filter { it.name.contains(currentState.taskInputText, ignoreCase = true) }
         }.sortedBy { it.id }.reversed()
 
         val updatedTasks = filteredTasks.map { task ->
@@ -62,10 +63,7 @@ class MainScreenViewModel(
             }
         }
 
-        MainScreenState(
-            taskList = updatedTasks,
-            taskInputText = text
-        )
+        currentState.copy(taskList = updatedTasks)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -75,7 +73,7 @@ class MainScreenViewModel(
     fun onAction(action: MainScreenAction) {
         when (action) {
             is MainScreenAction.OnTextChange -> {
-                _searchText.value = action.text
+                _state.update { it.copy(taskInputText = action.text) }
             }
 
             is MainScreenAction.OnTextInput -> {
@@ -84,7 +82,7 @@ class MainScreenViewModel(
                         // TODO: Handle error, e.g., show a snackbar
                         println(it.message)
                     }.onSuccess {
-                        _searchText.value = ""
+                        _state.update { it.copy(taskInputText = "") }
                     }
                 }
             }
