@@ -91,8 +91,13 @@ fun MainScreen(
         }
     }
     state.taskToDelete?.let {
+        val dialogTitle = if ((state.taskList.size == state.taskToDelete.size)
+            && state.taskList.size > 1
+        ) "Delete all tasks?"
+        else "Delete task?"
+
         ConfirmationDialog(
-            title = if (state.taskList.size == state.taskToDelete.size) "Delete all tasks?" else "Delete task?",
+            title = dialogTitle,
             message = "Are you sure you want to delete?",
             confirmButtonText = "Delete",
             dismissButtonText = "Cancel",
