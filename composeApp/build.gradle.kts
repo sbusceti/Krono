@@ -113,7 +113,8 @@ compose.desktop {
         mainClass = "it.stefanobusceti.krono.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(
+                TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Krono"
             packageVersion = "1.0.0"
 
@@ -121,6 +122,10 @@ compose.desktop {
 
             macOS {
                 iconFile.set(project.file("src/macosMain/resources/Krono.icns"))
+            }
+
+            windows{
+                shortcut = true
             }
         }
     }
