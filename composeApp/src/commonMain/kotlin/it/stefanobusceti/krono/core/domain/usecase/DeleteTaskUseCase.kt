@@ -6,7 +6,7 @@ import it.stefanobusceti.krono.core.domain.TaskRepository
 class DeleteTaskUseCase(
     private val taskRepository: TaskRepository
 ) {
-    suspend operator fun invoke(task: Task): Result<Boolean> {
-        return taskRepository.deleteTask(task)
+    suspend operator fun invoke(tasks: List<Task>): Result<Boolean> {
+        return taskRepository.deleteTasks(tasks)
     }
 }

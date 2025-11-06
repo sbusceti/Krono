@@ -17,4 +17,5 @@ fun TaskEntity.toDomain(): Task = Task(id, name, startTime, running, totalTime)
 
 fun List<TaskEntity>.toDomain(): List<Task> = map { it.toDomain() }
 
-fun Task.toEntity() : TaskEntity = TaskEntity(id, name, startTime, running, totalTime)
+fun Task.toEntity(): TaskEntity = TaskEntity(id, name, startTime, running, totalTime)
+fun List<Task>.toEntity(): List<TaskEntity> = map { it.toEntity() }

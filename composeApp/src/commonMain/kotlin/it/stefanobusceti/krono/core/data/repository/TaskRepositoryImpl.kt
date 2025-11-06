@@ -42,9 +42,9 @@ internal class TaskRepositoryImpl(
         }
     }
 
-    override suspend fun deleteAll(): Result<Boolean> {
+    override suspend fun deleteTasks(tasks: List<Task>): Result<Boolean> {
         return try {
-            database.taskDao().deleteAll()
+            database.taskDao().delete(tasks.toEntity())
             Result.success(true)
         } catch (e: Exception) {
             Result.failure(e)
@@ -62,7 +62,7 @@ internal class TaskRepositoryImpl(
 
     @OptIn(ExperimentalTime::class)
     override suspend fun resume(id: Int, startTime: Long) {
-        database.taskDao().resume(id,startTime)
+        database.taskDao().resume(id, startTime)
     }
 
     override suspend fun getTaskByName(name: String): Task? {

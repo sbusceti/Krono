@@ -6,5 +6,6 @@ import it.stefanobusceti.krono.core.domain.Task
 data class MainScreenState(
     val taskInputText: String = "",
     val taskList: List<Task> = emptyList(),
-    val snackBarHostState: SnackbarHostState = SnackbarHostState()
+    val snackBarHostState: SnackbarHostState = SnackbarHostState(),
+    val taskToDelete: List<Task>? = null
 )

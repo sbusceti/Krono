@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
+import it.stefanobusceti.krono.core.ConfirmationDialog
 import it.stefanobusceti.krono.feature.main.presentation.LongExt.formatElapsedTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -61,7 +62,7 @@ fun MainScreen(
                         onAction(MainScreenAction.ToggleRunning(task.id))
                     },
                     onDeleteClick = {
-                        onAction(MainScreenAction.DeleteTask(task))
+                        onAction(MainScreenAction.RequestDeleteTask(listOf(task)))
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -80,7 +81,7 @@ fun MainScreen(
             )
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = { onAction(MainScreenAction.DeleteAllTask) },
+                onClick = { onAction(MainScreenAction.RequestDeleteAllTask) },
                 enabled = state.taskList.isNotEmpty()
             ) {
                 Text(
@@ -88,6 +89,16 @@ fun MainScreen(
                 )
             }
         }
+    }
+    state.taskToDelete?.let {
+        ConfirmationDialog(
+            title = if (state.taskList.size == state.taskToDelete.size) "Delete all tasks?" else "Delete task?",
+            message = "Are you sure you want to delete?",
+            confirmButtonText = "Delete",
+            dismissButtonText = "Cancel",
+            onConfirm = { onAction(MainScreenAction.ConfirmDeleteTask) },
+            onDismiss = { onAction(MainScreenAction.DismissDialog) }
+        )
     }
 }
 

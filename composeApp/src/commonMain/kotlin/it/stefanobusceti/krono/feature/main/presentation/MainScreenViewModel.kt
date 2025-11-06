@@ -2,10 +2,11 @@ package it.stefanobusceti.krono.feature.main.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import it.stefanobusceti.krono.core.domain.Task
 import it.stefanobusceti.krono.core.domain.TaskRepository
 import it.stefanobusceti.krono.core.domain.usecase.AddTaskUseCase
+import it.stefanobusceti.krono.core.domain.usecase.DeleteTaskUseCase
 import it.stefanobusceti.krono.core.domain.usecase.ToggleRunningUseCase
+import it.stefanobusceti.krono.feature.main.presentation.UiEvent.SaveInProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,8 @@ import kotlin.time.ExperimentalTime
 class MainScreenViewModel(
     private val taskRepository: TaskRepository,
     private val toggleRunningUseCase: ToggleRunningUseCase,
-    private val addTaskUseCase: AddTaskUseCase
+    private val addTaskUseCase: AddTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase
 ) : ViewModel() {
 
     private var _saveEvent = MutableSharedFlow<UiEvent>()
@@ -87,8 +89,8 @@ class MainScreenViewModel(
                 }
             }
 
-            is MainScreenAction.DeleteTask -> {
-                deleteTask(action.task)
+            is MainScreenAction.RequestDeleteTask -> {
+                _state.update { it.copy(taskToDelete = action.tasks) }
             }
 
             is MainScreenAction.ToggleRunning -> {
@@ -97,31 +99,35 @@ class MainScreenViewModel(
                 }
             }
 
-            is MainScreenAction.DeleteAllTask -> {
+            is MainScreenAction.RequestDeleteAllTask -> {
                 viewModelScope.launch {
-                    taskRepository.deleteAll().onFailure {
-                        // TODO: Handle error, e.g., show a snackbar
-                    }
+                    _state.update { it.copy(taskToDelete = _tasks.first()) }
                 }
             }
 
             MainScreenAction.CloseApp -> {
                 viewModelScope.launch {
-                    _saveEvent.emit(UiEvent.SaveInProgress(true))
+                    _saveEvent.emit(SaveInProgress(true))
                     _tasks.first().filter { it.running }.forEach {
                         toggleRunningUseCase.invoke(it.id)
                     }
                     delay(1.seconds)
-                    _saveEvent.emit(UiEvent.SaveInProgress(false))
+                    _saveEvent.emit(SaveInProgress(false))
                 }
             }
-        }
-    }
 
-    private fun deleteTask(task: Task) {
-        viewModelScope.launch {
-            taskRepository.deleteTask(task).onFailure {
-                // TODO: Handle error, e.g., show a snackbar
+            MainScreenAction.ConfirmDeleteTask -> {
+                _state.value.taskToDelete?.let { taskList ->
+                    viewModelScope.launch {
+                        deleteTaskUseCase.invoke(taskList)
+                            .onFailure { }
+                            .onSuccess { _state.update { it.copy(taskToDelete = null) } }
+                    }
+                }
+            }
+
+            MainScreenAction.DismissDialog -> {
+                _state.update { it.copy(taskToDelete = null) }
             }
         }
     }

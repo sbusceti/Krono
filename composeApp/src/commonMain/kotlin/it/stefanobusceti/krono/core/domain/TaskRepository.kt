@@ -6,7 +6,7 @@ interface TaskRepository {
     fun getAllTasks(): Flow<List<Task>>
     suspend fun addTask(taskName: String): Result<Task>
     suspend fun deleteTask(task: Task): Result<Boolean>
-    suspend fun deleteAll(): Result<Boolean>
+    suspend fun deleteTasks(tasks: List<Task>): Result<Boolean>
     suspend fun pause(id: Int, totalTime: Long)
     suspend fun pauseAll()
     suspend fun resume(id: Int, startTime: Long)
