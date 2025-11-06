@@ -42,6 +42,40 @@ The project demonstrates the use of a **modern and robust stack** for KMP/CMP de
 
 ---
 
+## TODO
+
+### Core Implementation
+- [x] Project setup and configuration
+- [x] Database implementation
+- [x] Business logic implementation
+- [x] UI implementation
+- [x] Save data on app close
+
+### Platform Support & Improvements
+- [ ] Android
+- [ ] iOS
+- [x] Desktop
+
+### Distribution
+- [ ] Add build instructions to README
+
+### Features
+- [ ] Activity log with timestamps for all task starts
+- [ ] Add manual notes for each task session
+- [ ] Pause all tasks when new has started
+- [ ] Right-click on icon shows last 5 tasks
+- [x] Confirmation dialog for deletion
+- [ ] Global shortcuts for task control
+- [ ] Intercept close shortcut to save database
+- [ ] Auto-scroll to top when adding new task
+- [ ] Localization/i18n support
+
+### Improvements
+- [ ] Improve UI/UX
+- [ ] Implement tests
+
+---
+
 ### 🤝 Contributing
 
 If you find the project useful and would like to contribute, feel free to open an **Issue** for bugs or suggestions, or a **Pull Request** for changes and improvements!
