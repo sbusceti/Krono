@@ -121,11 +121,17 @@ compose.desktop {
             modules("jdk.accessibility")
 
             macOS {
-                iconFile.set(project.file("src/macosMain/resources/Krono.icns"))
+                iconFile.set(project.file("../icons/Krono.icns"))
             }
 
             windows{
                 shortcut = true
+
+                iconFile.set(project.file("../icons/Krono.ico"))
+            }
+
+            linux{
+                iconFile.set(project.file("../icons/linux_icons/krono_512x512.png"))
             }
         }
     }
