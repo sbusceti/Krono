@@ -62,7 +62,7 @@ The project demonstrates the use of a **modern and robust stack** for KMP/CMP de
 ### Features
 - [ ] Activity log with timestamps for all task starts
 - [ ] Add manual notes for each task session
-- [ ] Pause all tasks when new has started
+- [x] Pause all tasks when new has started
 - [ ] Right-click on icon shows last 5 tasks
 - [x] Confirmation dialog for deletion
 - [ ] Global shortcuts for task control
