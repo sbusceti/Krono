@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import it.stefanobusceti.krono.feature.main.presentation.MainScreen
-import it.stefanobusceti.krono.feature.main.presentation.MainScreenViewModel
+import it.stefanobusceti.krono.presentation.MainScreen
+import it.stefanobusceti.krono.presentation.MainScreenViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 

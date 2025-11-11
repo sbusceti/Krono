@@ -1,7 +1,6 @@
 package it.stefanobusceti.krono
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import it.stefanobusceti.krono.core.di.initKoin
-import it.stefanobusceti.krono.feature.main.presentation.MainScreenAction
-import it.stefanobusceti.krono.feature.main.presentation.MainScreenViewModel
-import it.stefanobusceti.krono.feature.main.presentation.UiEvent
+import it.stefanobusceti.krono.di.initKoin
+import it.stefanobusceti.krono.presentation.MainScreenAction
+import it.stefanobusceti.krono.presentation.MainScreenViewModel
+import it.stefanobusceti.krono.presentation.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.java.KoinJavaComponent.get
 
