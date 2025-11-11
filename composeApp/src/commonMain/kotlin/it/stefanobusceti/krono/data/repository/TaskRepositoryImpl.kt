@@ -56,10 +56,6 @@ internal class TaskRepositoryImpl(
         database.taskDao().pause(id, totalTime)
     }
 
-    override suspend fun pauseAll() {
-        database.taskDao().pauseAll()
-    }
-
     @OptIn(ExperimentalTime::class)
     override suspend fun resume(id: Int, startTime: Long) {
         database.taskDao().resume(id, startTime)
@@ -71,5 +67,9 @@ internal class TaskRepositoryImpl(
 
     override suspend fun getTaskById(id: Int): Task? {
         return database.taskDao().getTaskByID(id)?.toDomain()
+    }
+
+    override suspend fun getRunningTask(): List<Task> {
+        return database.taskDao().getRunningTask()?.toDomain() ?: emptyList()
     }
 }

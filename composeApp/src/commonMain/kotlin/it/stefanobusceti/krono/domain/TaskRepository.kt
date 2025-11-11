@@ -8,8 +8,9 @@ interface TaskRepository {
     suspend fun deleteTask(task: Task): Result<Boolean>
     suspend fun deleteTasks(tasks: List<Task>): Result<Boolean>
     suspend fun pause(id: Int, totalTime: Long)
-    suspend fun pauseAll()
     suspend fun resume(id: Int, startTime: Long)
     suspend fun getTaskByName(name: String): Task?
     suspend fun getTaskById(id: Int): Task?
+    suspend fun getRunningTask(): List<Task>
+
 }
