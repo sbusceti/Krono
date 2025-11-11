@@ -116,7 +116,7 @@ compose.desktop {
             targetFormats(
                 TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Krono"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
 
             modules("jdk.accessibility")
 
