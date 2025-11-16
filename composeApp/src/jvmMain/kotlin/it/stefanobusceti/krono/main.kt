@@ -28,11 +28,23 @@ import it.stefanobusceti.krono.presentation.MainScreenViewModel
 import it.stefanobusceti.krono.presentation.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.java.KoinJavaComponent.get
+import java.awt.Desktop
 
 fun main() = application {
     initKoin()
     val mainScreenViewModel = get<MainScreenViewModel>(MainScreenViewModel::class.java)
     var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        if (Desktop.isDesktopSupported()) {
+            val desktop = Desktop.getDesktop()
+            if (desktop.isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+                desktop.setQuitHandler { event, response ->
+                    mainScreenViewModel.onAction(MainScreenAction.CloseApp)
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         mainScreenViewModel.saveEvent.collectLatest { event ->

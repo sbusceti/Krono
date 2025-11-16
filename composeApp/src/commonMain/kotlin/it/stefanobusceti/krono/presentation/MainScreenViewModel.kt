@@ -37,7 +37,6 @@ class MainScreenViewModel(
     private val counterFlow = flow {
         while (true) {
             emit(Unit)
-            delay(1.seconds)
         }
     }
 
