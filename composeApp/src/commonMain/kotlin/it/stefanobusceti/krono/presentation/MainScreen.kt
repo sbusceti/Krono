@@ -1,8 +1,7 @@
 package it.stefanobusceti.krono.presentation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,15 +9,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -35,6 +36,17 @@ fun MainScreen(
     focusRequester: FocusRequester,
     onAction: (MainScreenAction) -> Unit
 ) {
+    val lazyListState = rememberLazyListState()
+
+    val previousTaskListSize = remember { mutableStateOf(state.taskList.size) }
+
+    LaunchedEffect(state.taskList.size) {
+        if (state.taskList.size > previousTaskListSize.value) {
+            lazyListState.animateScrollToItem(0)
+        }
+        previousTaskListSize.value = state.taskList.size
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -46,10 +58,16 @@ fun MainScreen(
                     tint = Color.Black
                 )
             }
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = state.snackBarHostState
+            )
         }
-    ) {
+    ) { innerPadding ->
         Column(
-            modifier = modifier,
+            modifier = modifier
+                .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TextInput(
@@ -63,9 +81,9 @@ fun MainScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f)
+                state = lazyListState,
+                modifier = Modifier,
+                contentPadding = PaddingValues(bottom = 60.dp)
             ) {
                 items(
                     items = state.taskList,
@@ -86,10 +104,7 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
-            SnackbarHost(
-                hostState = state.snackBarHostState
-            )
-            Row(
+            /*Row(
                 modifier = Modifier.align(Alignment.End),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -98,7 +113,7 @@ fun MainScreen(
                     text = "${state.taskList.count()} tasks"
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                /*Button(
+                Button(
                     onClick = { onAction(MainScreenAction.RequestDeleteAllTask) },
                     enabled = state.taskList.isNotEmpty()
                 ) {
@@ -107,9 +122,12 @@ fun MainScreen(
                     )
                 }
 
-                 */
             }
+
+             */
+
         }
+
 
     }
 
@@ -123,7 +141,7 @@ fun MainScreen(
                 onConfirm = { onAction(MainScreenAction.OnCreateTask(it)) },
                 onDismiss = { onAction(MainScreenAction.DismissDialog) },
                 errorText = dialogState.errorText,
-                onValueChange = {onAction(MainScreenAction.OnInputNewTaskName(it))}
+                onValueChange = { onAction(MainScreenAction.OnInputNewTaskName(it)) }
             )
         }
 
@@ -153,7 +171,7 @@ fun MainScreen(
 @Composable
 fun MainScreenPreview() {
     MainScreen(
-        modifier = Modifier.fillMaxWidth().padding(24.dp),
+        modifier = Modifier.fillMaxWidth(),
         focusRequester = FocusRequester(),
         state = MainScreenState(),
         onAction = {}

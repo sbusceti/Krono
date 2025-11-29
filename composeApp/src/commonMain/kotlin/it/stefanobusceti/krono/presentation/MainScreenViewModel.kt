@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 class MainScreenViewModel(
-    private val taskRepository: TaskRepository,
+    taskRepository: TaskRepository,
     private val toggleRunningUseCase: ToggleRunningUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase
