@@ -112,21 +112,6 @@ fun MainScreen(
         }
 
     }
-    state.taskToDelete?.let {
-        val dialogTitle = if ((state.taskList.size == state.taskToDelete.size)
-            && state.taskList.size > 1
-        ) "Delete all tasks?"
-        else "Delete task?"
-
-        ConfirmationDialog(
-            title = dialogTitle,
-            message = "Are you sure you want to delete?",
-            confirmButtonText = "Delete",
-            dismissButtonText = "Cancel",
-            onConfirm = { onAction(MainScreenAction.ConfirmDeleteTask) },
-            onDismiss = { onAction(MainScreenAction.DismissDialog) }
-        )
-    }
 
     when (val dialogState = state.dialogState) {
         is DialogState.CreateTask -> {
@@ -144,6 +129,22 @@ fun MainScreen(
 
         is DialogState.None -> {
             //nothing to show
+        }
+
+        is DialogState.DeleteTask -> {
+            val dialogTitle = if ((state.taskList.size == dialogState.taskList.size)
+                && state.taskList.size > 1
+            ) "Delete all tasks?"
+            else "Delete task?"
+
+            ConfirmationDialog(
+                title = dialogTitle,
+                message = "Are you sure you want to delete?",
+                confirmButtonText = "Delete",
+                dismissButtonText = "Cancel",
+                onConfirm = { onAction(MainScreenAction.ConfirmDeleteTask) },
+                onDismiss = { onAction(MainScreenAction.DismissDialog) }
+            )
         }
     }
 }

@@ -93,7 +93,7 @@ class MainScreenViewModel(
             }
 
             is MainScreenAction.RequestDeleteTask -> {
-                _state.update { it.copy(taskToDelete = action.tasks) }
+                _state.update { it.copy(dialogState = DialogState.DeleteTask(action.tasks)) }
             }
 
             is MainScreenAction.ToggleRunning -> {
@@ -104,7 +104,7 @@ class MainScreenViewModel(
 
             is MainScreenAction.RequestDeleteAllTask -> {
                 viewModelScope.launch {
-                    _state.update { it.copy(taskToDelete = _tasks.first()) }
+                    //_state.update { it.copy(dialogState = DialogState.DeleteTask()) }
                 }
             }
 
@@ -120,17 +120,18 @@ class MainScreenViewModel(
             }
 
             MainScreenAction.ConfirmDeleteTask -> {
-                _state.value.taskToDelete?.let { taskList ->
+                val dialogState = _state.value.dialogState as? DialogState.DeleteTask
+                if (dialogState != null) {
                     viewModelScope.launch {
-                        deleteTaskUseCase.invoke(taskList)
-                            .onFailure { }
-                            .onSuccess { _state.update { it.copy(taskToDelete = null) } }
+                        deleteTaskUseCase.invoke(dialogState.taskList).onFailure { }.onSuccess {
+                            _state.update { it.copy(dialogState = DialogState.None) }
+                        }
                     }
                 }
             }
 
             MainScreenAction.DismissDialog -> {
-                _state.update { it.copy(taskToDelete = null, dialogState = DialogState.None) }
+                _state.update { it.copy(dialogState = DialogState.None) }
             }
 
             MainScreenAction.OnAddTaskClick -> {
@@ -139,8 +140,8 @@ class MainScreenViewModel(
 
             is MainScreenAction.OnInputNewTaskName -> {
                 viewModelScope.launch {
-                    _tasks.first().filter { it.name == action.name.trim()  }.let { task->
-                        _state.update { currentState->
+                    _tasks.first().filter { it.name == action.name.trim() }.let { task ->
+                        _state.update { currentState ->
                             currentState.copy(
                                 dialogState = DialogState.CreateTask(
                                     errorText = if (task.isNotEmpty()) "Task already exists" else null

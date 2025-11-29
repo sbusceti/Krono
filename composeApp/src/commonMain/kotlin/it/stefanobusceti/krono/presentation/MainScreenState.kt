@@ -7,7 +7,6 @@ data class MainScreenState(
     val taskInputText: String = "",
     val taskList: List<Task> = emptyList(),
     val snackBarHostState: SnackbarHostState = SnackbarHostState(),
-    val taskToDelete: List<Task>? = null,
     val dialogState: DialogState = DialogState.None
 )
 
@@ -15,8 +14,10 @@ sealed interface DialogState {
     data object None : DialogState
 
     data class CreateTask(
-        val newTaskName: String = "",
-        val isSaveButtonEnabled: Boolean = false,
         val errorText: String? = null
+    ) : DialogState
+
+    data class DeleteTask(
+        val taskList: List<Task> = emptyList()
     ) : DialogState
 }
