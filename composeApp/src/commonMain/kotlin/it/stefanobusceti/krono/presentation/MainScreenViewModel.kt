@@ -76,13 +76,18 @@ class MainScreenViewModel(
                 _state.update { it.copy(taskInputText = action.text) }
             }
 
-            is MainScreenAction.OnTextInput -> {
+            is MainScreenAction.OnCreateTask -> {
                 viewModelScope.launch {
-                    addTaskUseCase.invoke(action.text).onFailure {
+                    addTaskUseCase.invoke(action.name).onFailure {
                         // TODO: Handle error, e.g., show a snackbar
                         println(it.message)
                     }.onSuccess {
-                        _state.update { it.copy(taskInputText = "") }
+                        _state.update {
+                            it.copy(
+                                taskInputText = "",
+                                dialogState = DialogState.None
+                            )
+                        }
                     }
                 }
             }
@@ -125,7 +130,25 @@ class MainScreenViewModel(
             }
 
             MainScreenAction.DismissDialog -> {
-                _state.update { it.copy(taskToDelete = null) }
+                _state.update { it.copy(taskToDelete = null, dialogState = DialogState.None) }
+            }
+
+            MainScreenAction.OnAddTaskClick -> {
+                _state.update { it.copy(dialogState = DialogState.CreateTask()) }
+            }
+
+            is MainScreenAction.OnInputNewTaskName -> {
+                viewModelScope.launch {
+                    _tasks.first().filter { it.name == action.name.trim()  }.let { task->
+                        _state.update { currentState->
+                            currentState.copy(
+                                dialogState = DialogState.CreateTask(
+                                    errorText = if (task.isNotEmpty()) "Task already exists" else null
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }
