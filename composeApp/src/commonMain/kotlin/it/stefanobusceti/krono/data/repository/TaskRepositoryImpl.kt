@@ -72,4 +72,16 @@ internal class TaskRepositoryImpl(
     override suspend fun getRunningTask(): List<Task> {
         return database.taskDao().getRunningTask()?.toDomain() ?: emptyList()
     }
+
+    override suspend fun updateTaskName(
+        id: Int,
+        name: String
+    ): Result<Boolean> {
+        return try {
+            database.taskDao().updateTaskName(id,name)
+            Result.success(true)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

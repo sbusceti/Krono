@@ -14,4 +14,9 @@ sealed interface MainScreenAction {
 
     data object OnAddTaskClick : MainScreenAction
     data class OnInputNewTaskName(val name: String) : MainScreenAction
+
+    data class OnEditClick(val id: Int,val name: String) : MainScreenAction
+    data class OnEditTaskConfirm(val id: Int,val name: String) : MainScreenAction
+
+    data class OnRename(val id: Int,val name: String) : MainScreenAction
 }

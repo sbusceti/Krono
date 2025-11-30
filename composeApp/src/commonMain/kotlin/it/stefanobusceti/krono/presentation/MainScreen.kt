@@ -3,7 +3,6 @@ package it.stefanobusceti.krono.presentation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -99,6 +98,9 @@ fun MainScreen(
                         },
                         onDeleteClick = {
                             onAction(MainScreenAction.RequestDeleteTask(listOf(task)))
+                        },
+                        onEditClick = {
+                            onAction(MainScreenAction.OnEditClick(task.id, task.name))
                         }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -127,44 +129,14 @@ fun MainScreen(
              */
 
         }
-
-
+        
     }
 
-    when (val dialogState = state.dialogState) {
-        is DialogState.CreateTask -> {
-            InputDialog(
-                title = "Add new task",
-                placeholder = "name",
-                confirmButtonText = "Add",
-                dismissButtonText = "Cancel",
-                onConfirm = { onAction(MainScreenAction.OnCreateTask(it)) },
-                onDismiss = { onAction(MainScreenAction.DismissDialog) },
-                errorText = dialogState.errorText,
-                onValueChange = { onAction(MainScreenAction.OnInputNewTaskName(it)) }
-            )
-        }
-
-        is DialogState.None -> {
-            //nothing to show
-        }
-
-        is DialogState.DeleteTask -> {
-            val dialogTitle = if ((state.taskList.size == dialogState.taskList.size)
-                && state.taskList.size > 1
-            ) "Delete all tasks?"
-            else "Delete task?"
-
-            ConfirmationDialog(
-                title = dialogTitle,
-                message = "Are you sure you want to delete?",
-                confirmButtonText = "Delete",
-                dismissButtonText = "Cancel",
-                onConfirm = { onAction(MainScreenAction.ConfirmDeleteTask) },
-                onDismiss = { onAction(MainScreenAction.DismissDialog) }
-            )
-        }
-    }
+    DialogHandler(
+        dialogState = state.dialogState,
+        taskCount = state.taskList.size,
+        onAction = onAction
+    )
 }
 
 @Preview

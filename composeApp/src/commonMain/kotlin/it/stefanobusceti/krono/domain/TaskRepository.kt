@@ -13,4 +13,6 @@ interface TaskRepository {
     suspend fun getTaskById(id: Int): Task?
     suspend fun getRunningTask(): List<Task>
 
+    suspend fun updateTaskName(id: Int, name: String) : Result<Boolean>
+
 }

@@ -29,6 +29,9 @@ interface TaskDao {
     @Query("SELECT * FROM task WHERE id = :id LIMIT 1")
     suspend fun getTaskByID(id: Int): TaskEntity?
 
+    @Query("UPDATE task SET name = :name WHERE id = :id")
+    suspend fun updateTaskName(id: Int, name: String) : Int
+
     @Query("UPDATE task SET running = false, totalTime = :totalTime WHERE id = :id")
     suspend fun pause(id: Int, totalTime: Long?): Int
 

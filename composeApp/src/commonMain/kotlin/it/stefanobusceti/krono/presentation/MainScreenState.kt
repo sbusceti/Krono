@@ -13,6 +13,12 @@ data class MainScreenState(
 sealed interface DialogState {
     data object None : DialogState
 
+    data class EditTask(
+        val id: Int,
+        val name: String,
+        val errorText: String? = null
+    ) : DialogState
+
     data class CreateTask(
         val errorText: String? = null
     ) : DialogState

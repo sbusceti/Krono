@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
@@ -29,7 +30,8 @@ fun TaskItem(
     duration: String,
     isRunning: Boolean,
     onStartStopClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -93,6 +95,18 @@ fun TaskItem(
                         )
                     }
 
+                    // Pulsante edit
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Modifica",
+                            tint = Color.Black
+                        )
+                    }
+
                     // Pulsante Play/Pause
                     IconButton(
                         onClick = onStartStopClick,
@@ -119,6 +133,7 @@ fun TaskItemPreview() {
         duration = "00:45",
         isRunning = true,
         onDeleteClick = {},
-        onStartStopClick = {}
+        onStartStopClick = {},
+        onEditClick = {}
     )
 }

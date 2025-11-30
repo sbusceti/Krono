@@ -8,6 +8,7 @@ import it.stefanobusceti.krono.domain.TaskRepository
 import it.stefanobusceti.krono.domain.usecase.AddTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.DeleteTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.ToggleRunningUseCase
+import it.stefanobusceti.krono.domain.usecase.UpdateTaskNameUseCase
 import it.stefanobusceti.krono.presentation.MainScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -26,6 +27,7 @@ val sharedModule = module {
     factory<ToggleRunningUseCase> { ToggleRunningUseCase(get()) }
     factory<AddTaskUseCase> { AddTaskUseCase(get()) }
     factory<DeleteTaskUseCase> { DeleteTaskUseCase(get()) }
+    factory<UpdateTaskNameUseCase> { UpdateTaskNameUseCase(get()) }
     //Database
     single<TaskDatabase> { DatabaseConstructor.initialize() }
     single<TaskDao> { get<TaskDatabase>().taskDao() }

@@ -6,6 +6,7 @@ import it.stefanobusceti.krono.domain.TaskRepository
 import it.stefanobusceti.krono.domain.usecase.AddTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.DeleteTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.ToggleRunningUseCase
+import it.stefanobusceti.krono.domain.usecase.UpdateTaskNameUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,10 +23,11 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 class MainScreenViewModel(
-    taskRepository: TaskRepository,
+    private val taskRepository: TaskRepository,
     private val toggleRunningUseCase: ToggleRunningUseCase,
     private val addTaskUseCase: AddTaskUseCase,
-    private val deleteTaskUseCase: DeleteTaskUseCase
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val updateTaskNameUseCase: UpdateTaskNameUseCase
 ) : ViewModel() {
 
     private var _saveEvent = MutableSharedFlow<UiEvent>()
@@ -149,6 +151,37 @@ class MainScreenViewModel(
                             )
                         }
                     }
+                }
+            }
+
+            is MainScreenAction.OnRename -> {
+                viewModelScope.launch {
+                    val oldName = taskRepository.getTaskById(action.id)?.name
+                    _tasks.first().filter { it.name == action.name.trim() }.let{ task ->
+                        _state.update { currentState ->
+                            currentState.copy(
+                                dialogState = DialogState.EditTask(
+                                    errorText = if (task.isNotEmpty()) "Task already exists" else null,
+                                    id = action.id,
+                                    name = if (task.isNotEmpty()) action.name else oldName ?: ""
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            is MainScreenAction.OnEditClick -> {
+                _state.update { it.copy(dialogState = DialogState.EditTask(action.id,action.name)) }
+            }
+
+            is MainScreenAction.OnEditTaskConfirm -> {
+                viewModelScope.launch {
+                    updateTaskNameUseCase.invoke(action.id,action.name)
+                        .onFailure {  }
+                        .onSuccess {
+                            _state.update { it.copy(dialogState = DialogState.None) }
+                        }
                 }
             }
         }
