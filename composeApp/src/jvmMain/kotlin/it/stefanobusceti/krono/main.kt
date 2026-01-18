@@ -29,8 +29,31 @@ import it.stefanobusceti.krono.presentation.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.java.KoinJavaComponent.get
 import java.awt.Desktop
+import java.net.InetAddress
+import java.net.ServerSocket
+import kotlin.system.exitProcess
+
+/**
+ * Checks if another instance of the application is already running.
+ * This is done by attempting to create a ServerSocket on a fixed port (9999).
+ * If the socket is successfully created, this is the first instance of the application.
+ * A shutdown hook is added to close the socket when the application exits.
+ * If the socket creation fails, it means another instance is already running,
+ * so the application prints a message and exits.
+ */
+fun checkAppInstance(){
+    try {
+        val socket = ServerSocket(9999, 1, InetAddress.getByName("127.0.0.1"))
+        Runtime.getRuntime().addShutdownHook(Thread { socket.close() })
+
+    } catch (e: Exception) {
+        println("Instance already running. Exiting.")
+        exitProcess(0)
+    }
+}
 
 fun main() = application {
+    checkAppInstance()
     initKoin()
     val mainScreenViewModel = get<MainScreenViewModel>(MainScreenViewModel::class.java)
     var showDialog by remember { mutableStateOf(false) }
