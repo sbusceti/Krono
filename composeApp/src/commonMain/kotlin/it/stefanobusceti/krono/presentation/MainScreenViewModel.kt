@@ -7,14 +7,19 @@ import it.stefanobusceti.krono.domain.usecase.AddTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.DeleteTaskUseCase
 import it.stefanobusceti.krono.domain.usecase.ToggleRunningUseCase
 import it.stefanobusceti.krono.domain.usecase.UpdateTaskNameUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -36,11 +41,24 @@ class MainScreenViewModel(
 
     private var _state = MutableStateFlow(MainScreenState())
 
-    private val counterFlow = flow {
-        while (true) {
-            emit(Unit)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val counterFlow = _tasks
+        .map { tasks ->
+            tasks.any { it.running }
         }
-    }
+        .distinctUntilChanged()
+        .flatMapLatest { hasRunningTask ->
+            if (hasRunningTask) {
+                flow {
+                    while (true) {
+                        emit(Unit)
+                        delay(1000L)
+                    }
+                }
+            } else {
+                flowOf(Unit)
+            }
+        }
 
     @OptIn(ExperimentalTime::class)
     val state = combine(
@@ -56,9 +74,10 @@ class MainScreenViewModel(
 
         val updatedTasks = filteredTasks.map { task ->
             if (task.running) {
+                val now = Clock.System.now().toEpochMilliseconds()
+                val taskDuration = now - task.startTime
                 task.copy(
-                    totalTime = task.totalTime + (Clock.System.now()
-                        .toEpochMilliseconds() - task.startTime)
+                    totalTime = task.totalTime + taskDuration
                 )
             } else {
                 task
@@ -157,7 +176,7 @@ class MainScreenViewModel(
             is MainScreenAction.OnRename -> {
                 viewModelScope.launch {
                     val oldName = taskRepository.getTaskById(action.id)?.name
-                    _tasks.first().filter { it.name == action.name.trim() }.let{ task ->
+                    _tasks.first().filter { it.name == action.name.trim() }.let { task ->
                         _state.update { currentState ->
                             currentState.copy(
                                 dialogState = DialogState.EditTask(
@@ -172,13 +191,20 @@ class MainScreenViewModel(
             }
 
             is MainScreenAction.OnEditClick -> {
-                _state.update { it.copy(dialogState = DialogState.EditTask(action.id,action.name)) }
+                _state.update {
+                    it.copy(
+                        dialogState = DialogState.EditTask(
+                            action.id,
+                            action.name
+                        )
+                    )
+                }
             }
 
             is MainScreenAction.OnEditTaskConfirm -> {
                 viewModelScope.launch {
-                    updateTaskNameUseCase.invoke(action.id,action.name)
-                        .onFailure {  }
+                    updateTaskNameUseCase.invoke(action.id, action.name)
+                        .onFailure { }
                         .onSuccess {
                             _state.update { it.copy(dialogState = DialogState.None) }
                         }
